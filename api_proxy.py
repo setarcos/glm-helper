@@ -5,6 +5,7 @@ from UltraDict import UltraDict
 import json, uuid
 import requests
 import time
+import asyncio
 
 status = UltraDict(name='fastapi_dict')
 
@@ -48,15 +49,19 @@ async def generate_data(index, options):
     print(payload)
     response = requests.post(url, json=payload, headers=headers, stream=True)
     last_line = ''
-    for line in response.iter_content(chunk_size=None):
-        idx = line.rfind(b'<^>')
-        last_line = line[idx+3:].decode('utf-8')
-        message = json.dumps(dict(
-            role = "AI",
-            id = uid,
-            text = last_line,
-        ))
-        yield "<^>" + message
+    try:
+        for line in response.iter_content(chunk_size=None):
+            idx = line.rfind(b'<^>')
+            last_line = line[idx+3:].decode('utf-8')
+            message = json.dumps(dict(
+                role = "AI",
+                id = uid,
+                text = last_line,
+            ))
+            await asyncio.sleep(0) # 这里必须加上这句才能捕获用户中断
+            yield "<^>" + message
+    except asyncio.CancelledError:
+        pass
     with status.lock:
         status[str(index)] = False
         status['ready'] += 1
