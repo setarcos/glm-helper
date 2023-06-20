@@ -1,0 +1,4 @@
+fastapi
+UltraDict
+requests
+uvicorn
