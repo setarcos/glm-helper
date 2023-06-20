@@ -7,7 +7,12 @@ import requests
 import time
 import asyncio
 
-status = UltraDict(name='fastapi_dict')
+try:
+    status = UltraDict(name='fastapi_dict')
+except:
+    # UltraDict 的建立有一定概率因冲突失败（多进程竞争）
+    # 重新建立一次就不会失败了（和它竞争的已经建立完成）
+    status = UltraDict(name='fastapi_dict')
 
 server_list = []
 
