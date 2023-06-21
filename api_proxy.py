@@ -92,6 +92,8 @@ async def stream_data(data: dict):
     print(data)
     payload['prompt'] = data['prompt']
     payload['temperature'] = data['temperature']
+    payload['max_length'] = data['max_length']
+    payload['top_p'] = {None: 0.7, 1: 0.2, 50: 0.5}.get(data['top_p'], 0.9)
     while True:
         if idx == len(server_list):
             idx = 0
@@ -107,4 +109,4 @@ async def stream_data(data: dict):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api_proxy:app", host="127.0.0.1", port=3002, workers=4)
+    uvicorn.run("api_proxy:app", host="127.0.0.1", port=3002, workers=2)
